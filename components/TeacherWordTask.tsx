@@ -29,19 +29,12 @@ const TeacherWordTask = ({ onBack }) => {
     return;
   }
 
-  // 1️⃣ Tách câu theo }#
   const rawBlocks = text
     .split('}#')
     .map(b => b.trim())
     .filter(b => b.startsWith('{'))
     .map(b => b.endsWith('}') ? b : b + '}');
 
-  if (rawBlocks.length === 0) {
-    alert("Không tìm thấy câu hỏi hợp lệ!");
-    return;
-  }
-
-  // 2️⃣ Parse từng block
   const results = rawBlocks.map((block, index) => {
     try {
       const obj = new Function(`return (${block})`)();
@@ -49,21 +42,18 @@ const TeacherWordTask = ({ onBack }) => {
       return {
         id: obj.id || Date.now() + index,
         classTag: (obj.classTag || "1001.a").trim(),
-        type: obj.type || "short-answer",
-        question: JSON.stringify(obj) // 🔥 LƯU NGUYÊN JSON
+        type: obj.type || "mcq",
+        question: obj.question || "",
+        option: obj.o ? JSON.stringify(obj.o) : "",
+        answer: obj.a || ""
       };
+
     } catch (e) {
-      console.error("❌ Lỗi parse câu:", block);
+      console.error("Parse lỗi:", block);
       return null;
     }
   }).filter(Boolean);
 
-  if (!results.length) {
-    alert("Parse xong nhưng không có câu nào hợp lệ!");
-    return;
-  }
-
-  // 3️⃣ Gửi thẳng sang GAS
   handleSaveQuestions(results);
 };
 
