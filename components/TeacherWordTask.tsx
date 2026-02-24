@@ -38,13 +38,16 @@ const TeacherWordTask = ({ onBack }) => {
   const results = rawBlocks.map((block, index) => {
     try {
       const obj = new Function(`return (${block})`)();
-
-      return {
+            return {
       id: obj.id || Date.now() + index,
       classTag: (obj.classTag || "1001.a").trim(),
       type: obj.type || "mcq",
       question: obj.question || "",
-      options: obj.options || obj.o || [],
+      options: obj.o ? JSON.stringify(obj.o) :
+                 obj.s ? JSON.stringify(obj.s) : "",
+      answer: obj.a || "",
+      loigiai: obj.loigiai || ""
+        
       };
 
     } catch (e) {
