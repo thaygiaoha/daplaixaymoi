@@ -61,37 +61,41 @@ const TeacherWordTask = ({ onBack }) => {
   // ==============================================================================================================================================
    
 const handleSaveQuestions = async (dataArray) => {
-  // 1. Kiểm tra dữ liệu đầu vào
-  if (!dataArray || (Array.isArray(dataArray) && dataArray.length === 0)) {
+  if (!dataArray || dataArray.length === 0) {
     alert("Chưa có dữ liệu để nạp!");
     return;
   }
-  
+
   setLoading(true);
+
   try {
-    const targetUrl = API_ROUTING[idgv]; 
+    const targetUrl = API_ROUTING[idgv];
+
+    const formData = new URLSearchParams();
+    formData.append("action", "saveOnlyQuestions");
+    formData.append("examCode", examCode);
+    formData.append("idgv", idgv);
+    formData.append("questions", JSON.stringify(dataArray));
+
     const response = await fetch(targetUrl, {
-  method: "POST",
-  headers: { 
-    "Content-Type": "application/json" 
-  },
-  body: JSON.stringify({
-    action: "saveOnlyQuestions",
-    examCode: examCode,
-    idgv: idgv,
-    questions: JSON.stringify(dataArray)
-  }),
-});
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: formData.toString()
+    });
 
     const result = await response.json();
+
     if (result.status === "success") {
-      alert("✅ Ngon lành: " + result.message);
+      alert("✅ Lưu thành công: " + result.message);
     } else {
       alert("❌ Lỗi Script: " + result.message);
     }
+
   } catch (error) {
     console.error("Lỗi fetch:", error);
-    alert("Không kết nối được với Script, thầy kiểm tra lại link GAS!");
+    alert("Không kết nối được với Script!");
   } finally {
     setLoading(false);
   }
