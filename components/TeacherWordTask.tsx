@@ -40,12 +40,11 @@ const TeacherWordTask = ({ onBack }) => {
       const obj = new Function(`return (${block})`)();
 
       return {
-        id: obj.id || Date.now() + index,
-        classTag: (obj.classTag || "1001.a").trim(),
-        type: obj.type || "mcq",
-        question: obj.question || "",
-        option: obj.o ? JSON.stringify(obj.o) : "",
-        answer: obj.a || ""
+      id: obj.id || Date.now() + index,
+      classTag: (obj.classTag || "1001.a").trim(),
+      type: obj.type || "mcq",
+      question: obj.question || "",
+      options: obj.options || obj.o || [],
       };
 
     } catch (e) {
