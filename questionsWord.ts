@@ -86,31 +86,10 @@ export const fetchQuestionsBankW = async (
     const response = await fetch(finalUrl);
     const result = await response.json();
 
-    if (result.status === "success" && Array.isArray(result.data)) {
-
-  // 🔥 Parse option từ sheet (string -> array)
-  const normalized = result.data.map((q: any) => {
-    let parsedOptions = [];
-
-    if (typeof q.option === "string") {
-      try {
-        parsedOptions = JSON.parse(q.option);
-      } catch {
-        parsedOptions = [];
-      }
-    }
-
-    return {
-      ...q,
-      options: parsedOptions
-    };
-  });
-
-  questionsBankW = shuffleByTypeParts(normalized);
-
-  console.log("Dữ liệu đã trộn theo Type:", questionsBankW);
+   if (result.status === "success" && Array.isArray(result.data)) {
+  questionsBankW = shuffleByTypeParts(result.data);
   return questionsBankW;
- }
+}
 
     return [];
   } catch (error) {
