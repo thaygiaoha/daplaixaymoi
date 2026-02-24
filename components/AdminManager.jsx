@@ -112,8 +112,6 @@ const AdminPanel = ({ mode, onBack }) => {
   }
 
   const blocks = [];
-
-  // Tách theo }#
   const rawParts = text.split('}#');
 
   rawParts.forEach(part => {
@@ -125,31 +123,46 @@ const AdminPanel = ({ mode, onBack }) => {
   });
 
   if (!blocks.length) {
-    alert("❌ Không tìm thấy block { ... }# nào!");
+    alert("❌ Không tìm thấy block!");
     return;
   }
 
-  const results = blocks.map((block, index) => {
-    let obj;
+  const results = blocks.map((block) => {
     try {
-      obj = new Function(`return (${block})`)();
+      const obj = new Function(`return (${block})`)();
+
+      return {
+        id: obj.id,
+        classTag: obj.classTag || "",
+        type: obj.type || "",
+        part: obj.part || "",
+        question: obj.question || "",
+        options: obj.o ? JSON.stringify(obj.o) :
+                 obj.s ? JSON.stringify(obj.s) : "",
+        answer: obj.a || "",
+        loigiai: obj.loigiai || ""
+      };
+
     } catch (e) {
-      console.error("❌ Parse lỗi block:", block);
+      console.error("Parse lỗi:", block);
       return null;
     }
-
-    return {
-      id: obj.id,
-      classTag: obj.classTag || "1001.a",
-      type: obj.type || "",
-      question: block   // 🔥 GIỮ NGUYÊN RAW
-    };
   }).filter(Boolean);
 
-  console.log("✅ Parsed questions:", results.length);
   setJsonInput(JSON.stringify(results, null, 2));
 };
+// ===================================load ngân hàng đề =====================
+  const handleLoadQuestions = async () => {
+  const resp = await fetch(`${DANHGIA_URL}?action=loadQuestions`);
+  const res = await resp.json();
 
+  if (res.status === 'success') {
+    setAllQuestions(res.data);
+    alert("📚 Đã load ngân hàng câu hỏi!");
+  } else {
+    alert("Lỗi load!");
+  }
+};
 
 // ======================================================================================Ghi câu hoi ngân hàng=========
   
