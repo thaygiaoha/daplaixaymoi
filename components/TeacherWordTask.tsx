@@ -71,15 +71,17 @@ const handleSaveQuestions = async (dataArray) => {
   try {
     const targetUrl = API_ROUTING[idgv]; 
     const response = await fetch(targetUrl, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain" },
-      body: JSON.stringify({
-        action: "saveOnlyQuestions", // Thầy nhớ check bên GAS tên action này nhé
-        examCode: examCode,
-        idgv: idgv,
-        questions: dataArray // ĐÃ SỬA: Dùng đúng tên tham số dataArray
-      }),
-    });
+  method: "POST",
+  headers: { 
+    "Content-Type": "application/json" 
+  },
+  body: JSON.stringify({
+    action: "saveOnlyQuestions",
+    examCode: examCode,
+    idgv: idgv,
+    questions: JSON.stringify(dataArray)
+  }),
+});
 
     const result = await response.json();
     if (result.status === "success") {
