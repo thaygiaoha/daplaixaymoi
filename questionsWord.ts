@@ -12,6 +12,31 @@ const shuffle = <T>(arr: T[]) => {
   }
   return a;
 };
+const shuffleOptions = (q: any) => {
+  if (!q.options) return q;
+
+  let optionsArray: any[] = [];
+
+  // Vì sheet lưu string JSON
+  if (typeof q.options === "string") {
+    try {
+      optionsArray = JSON.parse(q.options);
+    } catch {
+      optionsArray = [];
+    }
+  } else if (Array.isArray(q.options)) {
+    optionsArray = q.options;
+  }
+
+  if (!Array.isArray(optionsArray) || optionsArray.length === 0) return q;
+
+  const shuffled = shuffle(optionsArray);
+
+  return {
+    ...q,
+    options: shuffled
+  };
+};
 
 const shuffleByTypeParts = (data: Question[]): Question[] => {
   const mcq: Question[] = [];
@@ -28,12 +53,17 @@ const shuffleByTypeParts = (data: Question[]): Question[] => {
     else other.push(q);
   });
 
-  return [
+  const mixed = [
     ...shuffle(mcq),
     ...shuffle(tf),
     ...shuffle(sa),
     ...shuffle(other)
   ];
+
+  // 🔥 Trộn đáp án MCQ
+  return mixed.map(q =>
+    q.type === "mcq" ? shuffleOptions(q) : q
+  );
 };
 
 export const fetchQuestionsBankW = async (
@@ -57,11 +87,31 @@ export const fetchQuestionsBankW = async (
     const result = await response.json();
 
     if (result.status === "success" && Array.isArray(result.data)) {
-      // THỰC HIỆN TRỘN THEO PHẦN TRƯỚC KHI GÁN
-      questionsBankW = shuffleByTypeParts(result.data);
-      console.log("Dữ liệu đã trộn theo Type:", questionsBankW);
-      return questionsBankW;
+
+  // 🔥 Parse option từ sheet (string -> array)
+  const normalized = result.data.map((q: any) => {
+    let parsedOptions = [];
+
+    if (typeof q.option === "string") {
+      try {
+        parsedOptions = JSON.parse(q.option);
+      } catch {
+        parsedOptions = [];
+      }
     }
+
+    return {
+      ...q,
+      options: parsedOptions
+    };
+  });
+
+  questionsBankW = shuffleByTypeParts(normalized);
+
+  console.log("Dữ liệu đã trộn theo Type:", questionsBankW);
+  return questionsBankW;
+ }
+
     return [];
   } catch (error) {
     console.error("Lỗi fetch questions:", error);
