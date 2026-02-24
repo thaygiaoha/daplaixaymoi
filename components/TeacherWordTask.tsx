@@ -78,11 +78,14 @@ const handleSaveQuestions = async (dataArray) => {
     formData.append("questions", JSON.stringify(dataArray));
 
     const response = await fetch(targetUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: formData.toString()
+    method: "POST",
+    headers: { "Content-Type": "text/plain" },
+    body: JSON.stringify({
+    action: "saveOnlyQuestions",
+    examCode: examCode,
+    idgv: idgv,
+    questions: dataArray
+    }),
     });
 
     const result = await response.json();
